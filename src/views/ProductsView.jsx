@@ -13,7 +13,8 @@ import {
   Ticket,
   Calculator,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  FileSpreadsheet
 } from 'lucide-react'
 import { useDataStore } from '@/store/useDataStore'
 import { useWarehouseStore } from '@/store/useWarehouseStore'
@@ -23,6 +24,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import { formatCurrency } from '@/lib/utils'
+import { exportToExcel } from '@/lib/exportUtils'
 
 export const ProductsView = () => {
   const { products, categories, addProduct, updateProduct, deleteProduct } = useDataStore()
@@ -166,6 +168,26 @@ export const ProductsView = () => {
     }
   }
 
+  const handleExportExcel = () => {
+    const dataToExport = filteredProducts.map((p, idx) => ({
+      'SL No': idx + 1,
+      'Product Name': p.name,
+      'SKU': p.sku,
+      'Category': p.category,
+      'Subcategory': p.subcategory || 'General',
+      'Selling Price (₹)': p.price,
+      'MRP (₹)': p.mrp,
+      'Total Stock Inwarded': p.totalStockReceived || p.quantity,
+      'Good Sellable Stock': p.goodQty !== undefined ? p.goodQty : p.quantity,
+      'Damaged Stock': p.damagedCount || 0,
+      'Expired Stock': p.expiredCount || 0,
+      'Warehouse': p.warehouseName,
+      'Room/Row/Shelf Location': `${p.roomName || ''} / ${p.rowName || ''} / ${p.shelfName || ''}`,
+      'Lot Batch': p.lotCode || 'N/A'
+    }))
+    exportToExcel(dataToExport, 'fillfree_products_inventory', 'Products Stock')
+  }
+
   return (
     <div className="space-y-6">
       {/* Top Header */}
@@ -177,10 +199,22 @@ export const ProductsView = () => {
           </p>
         </div>
 
-        <Button onClick={handleOpenAdd} variant="default">
-          <Plus className="h-4 w-4 mr-1.5" />
-          Add New Product
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleExportExcel}
+            variant="outline"
+            className="gap-1.5 text-xs h-9 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+            title="Download Products in Excel Format (.xlsx)"
+          >
+            <FileSpreadsheet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Download Excel</span>
+          </Button>
+
+          <Button onClick={handleOpenAdd} variant="default" className="text-xs h-9">
+            <Plus className="h-4 w-4 mr-1.5" />
+            Add New Product
+          </Button>
+        </div>
       </div>
 
       {/* Category Tabs & Search Bar */}

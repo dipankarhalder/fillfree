@@ -10,9 +10,9 @@ import {
   UserCheck,
   Box,
   Layers,
-  CheckCircle,
   Edit,
-  Trash2
+  Trash2,
+  FileSpreadsheet
 } from 'lucide-react'
 import { useWarehouseStore } from '@/store/useWarehouseStore'
 import { useDataStore } from '@/store/useDataStore'
@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import { ProgressBar } from '@/components/ui/ProgressBar'
+import { exportToExcel } from '@/lib/exportUtils'
 
 export const WarehousesView = () => {
   const { warehouses, addWarehouse, updateWarehouse, deleteWarehouse, selectWarehouse, selectedWarehouseId } = useWarehouseStore()
@@ -108,6 +109,23 @@ export const WarehousesView = () => {
     }
   }
 
+  const handleExportExcel = () => {
+    const dataToExport = warehouses.map((wh, idx) => ({
+      'SL No': idx + 1,
+      'Facility ID': wh.id,
+      'Warehouse Name': wh.name,
+      'Location / Address': wh.location,
+      'City': wh.city,
+      'State': wh.state,
+      'Occupied Capacity (Units)': wh.occupiedCapacity,
+      'Total Capacity (Units)': wh.totalCapacity,
+      'Occupancy Rate': `${Math.round((wh.occupiedCapacity / wh.totalCapacity) * 100)}%`,
+      'Assigned Manager': wh.managerName || 'Operations Manager',
+      'Assigned Staff Count': wh.staffCount || 12
+    }))
+    exportToExcel(dataToExport, 'fillfree_warehouses_facilities', 'Warehouses')
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -122,10 +140,22 @@ export const WarehousesView = () => {
           </p>
         </div>
 
-        <Button onClick={handleOpenAdd} variant="default">
-          <Plus className="h-4 w-4 mr-1.5" />
-          Add Warehouse Facility
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleExportExcel}
+            variant="outline"
+            className="gap-1.5 text-xs h-9 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+            title="Download Warehouses in Excel Format (.xlsx)"
+          >
+            <FileSpreadsheet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Download Excel</span>
+          </Button>
+
+          <Button onClick={handleOpenAdd} variant="default" className="text-xs h-9">
+            <Plus className="h-4 w-4 mr-1.5" />
+            Add Warehouse Facility
+          </Button>
+        </div>
       </div>
 
       {/* Warehouse Selection Cards */}
