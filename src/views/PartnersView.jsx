@@ -10,10 +10,10 @@ import {
   Search,
   ExternalLink,
   ShieldCheck,
-  FileText,
   DollarSign,
   Edit,
-  Trash2
+  Trash2,
+  FileSpreadsheet
 } from 'lucide-react'
 import { useDataStore } from '@/store/useDataStore'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card'
@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import { formatCurrency } from '@/lib/utils'
+import { exportToExcel } from '@/lib/exportUtils'
 
 export const PartnersView = () => {
   const { partners, addPartner, updatePartner, deletePartner } = useDataStore()
@@ -135,6 +136,24 @@ export const PartnersView = () => {
     }
   }
 
+  const handleExportExcel = () => {
+    const dataToExport = filteredPartners.map((p, idx) => ({
+      'SL No': idx + 1,
+      'Partner ID': p.id,
+      'Business / Company Name': p.businessName,
+      'Trade Role': (p.role || '').replace('_', ' ').toUpperCase(),
+      'Contact Person': p.contactPerson,
+      'Email Address': p.email,
+      'Phone Number': p.phone,
+      'GSTIN': p.gstin || 'N/A',
+      'City': p.locationDetails?.city || 'Kolkata',
+      'State': p.locationDetails?.state || 'West Bengal',
+      'Credit Limit (₹)': p.creditLimit || 500000,
+      'Account Status': p.status || 'Active'
+    }))
+    exportToExcel(dataToExport, 'fillfree_partners_crm_directory', 'Trade Partners')
+  }
+
   return (
     <div className="space-y-6">
       {/* Top Header */}
@@ -149,10 +168,22 @@ export const PartnersView = () => {
           </p>
         </div>
 
-        <Button onClick={handleOpenAdd} variant="default">
-          <Plus className="h-4 w-4 mr-1.5" />
-          Add New Partner
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleExportExcel}
+            variant="outline"
+            className="gap-1.5 text-xs h-9 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+            title="Download Partners Directory in Excel Format (.xlsx)"
+          >
+            <FileSpreadsheet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Download Excel</span>
+          </Button>
+
+          <Button onClick={handleOpenAdd} variant="default" className="text-xs h-9">
+            <Plus className="h-4 w-4 mr-1.5" />
+            Add New Partner
+          </Button>
+        </div>
       </div>
 
       {/* Role Filter Tabs */}

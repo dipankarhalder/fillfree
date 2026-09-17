@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 const INITIAL_DEVICES = [
   {
@@ -43,75 +44,95 @@ export const ALL_ROLES = [
   { id: 'shop_saler', name: 'Shop Saler', badge: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' },
 ]
 
-export const useAuthStore = create((set, get) => ({
-  isAuthenticated: false,
-  currentUser: {
-    id: 'usr-1001',
-    name: 'Dipankar Halder',
-    email: 'admin@fillfree.com',
-    phone: '+91 98765 43210',
-    address: 'Sector V, Salt Lake, Kolkata 700091',
-    role: 'Super_admin',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
-    joinedDate: '2024-01-15',
-    department: 'Executive Administration'
-  },
-  activeRole: 'Super_admin',
-  accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3ItMTAwMSIsIm5hbWUiOiJEaXBhbmthciBIYWxkZXIiLCJyb2xlIjoiU3VwZXJfYWRtaW4iLCJpYXQiOjE3MTU4OTQ0MDB9.signature_placeholder_access_token',
-  refreshToken: 'refresh_tok_9981248912749182391238912',
-  devices: INITIAL_DEVICES,
-
-  login: (email, password, role = 'Super_admin') => {
-    const newDevice = {
-      id: `dev-${Date.now()}`,
-      deviceName: 'Current Web Session (Browser)',
-      os: 'macOS Sonoma 14.5',
-      ip: '192.168.1.104',
-      location: 'Local Workstation',
-      isCurrent: true,
-      loginTime: new Date().toISOString(),
-      lastActive: 'Just now'
-    }
-    set((state) => ({
-      isAuthenticated: true,
-      activeRole: role,
+export const useAuthStore = create(
+  persist(
+    (set, get) => ({
+      _hasHydrated: false,
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
+      isAuthenticated: false,
       currentUser: {
-        ...state.currentUser,
-        role: role,
-        email: email || state.currentUser.email
+        id: 'usr-1001',
+        name: 'Dipankar Halder',
+        email: 'admin@fillfree.com',
+        phone: '+91 98765 43210',
+        address: 'Sector V, Salt Lake, Kolkata 700091',
+        role: 'Super_admin',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+        joinedDate: '2024-01-15',
+        department: 'Executive Administration'
       },
-      accessToken: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock_token_${Date.now()}`,
-      refreshToken: `mock_refresh_${Date.now()}`,
-      devices: [newDevice, ...state.devices.map(d => ({ ...d, isCurrent: false }))]
-    }))
-  },
+      activeRole: 'Super_admin',
+      accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3ItMTAwMSIsIm5hbWUiOiJEaXBhbmthciBIYWxkZXIiLCJyb2xlIjoiU3VwZXJfYWRtaW4iLCJpYXQiOjE3MTU4OTQ0MDB9.signature_placeholder_access_token',
+      refreshToken: 'refresh_tok_9981248912749182391238912',
+      devices: INITIAL_DEVICES,
 
-  logout: () => {
-    set({ isAuthenticated: false })
-  },
+      login: (email, password, role = 'Super_admin') => {
+        const newDevice = {
+          id: `dev-${Date.now()}`,
+          deviceName: 'Current Web Session (Browser)',
+          os: 'macOS Sonoma 14.5',
+          ip: '192.168.1.104',
+          location: 'Local Workstation',
+          isCurrent: true,
+          loginTime: new Date().toISOString(),
+          lastActive: 'Just now'
+        }
+        set((state) => ({
+          isAuthenticated: true,
+          activeRole: role,
+          currentUser: {
+            ...state.currentUser,
+            role: role,
+            email: email || state.currentUser.email
+          },
+          accessToken: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock_token_${Date.now()}`,
+          refreshToken: `mock_refresh_${Date.now()}`,
+          devices: [newDevice, ...state.devices.map(d => ({ ...d, isCurrent: false }))]
+        }))
+      },
 
-  switchRole: (newRole) => {
-    set((state) => ({
-      activeRole: newRole,
-      currentUser: { ...state.currentUser, role: newRole }
-    }))
-  },
+      logout: () => {
+        set({ isAuthenticated: false })
+      },
 
-  updateUserProfile: (updatedFields) => {
-    set((state) => ({
-      currentUser: { ...state.currentUser, ...updatedFields }
-    }))
-  },
+      switchRole: (newRole) => {
+        set((state) => ({
+          activeRole: newRole,
+          currentUser: { ...state.currentUser, role: newRole }
+        }))
+      },
 
-  revokeDeviceSession: (deviceId) => {
-    set((state) => ({
-      devices: state.devices.filter(d => d.id !== deviceId)
-    }))
-  },
+      updateUserProfile: (updatedFields) => {
+        set((state) => ({
+          currentUser: { ...state.currentUser, ...updatedFields }
+        }))
+      },
 
-  revokeAllOtherSessions: () => {
-    set((state) => ({
-      devices: state.devices.filter(d => d.isCurrent)
-    }))
-  }
-}))
+      revokeDeviceSession: (deviceId) => {
+        set((state) => ({
+          devices: state.devices.filter(d => d.id !== deviceId)
+        }))
+      },
+
+      revokeAllOtherSessions: () => {
+        set((state) => ({
+          devices: state.devices.filter(d => d.isCurrent)
+        }))
+      }
+    }),
+    {
+      name: 'fillfree_auth_session',
+      partialize: (state) => ({
+        isAuthenticated: state.isAuthenticated,
+        currentUser: state.currentUser,
+        activeRole: state.activeRole,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+        devices: state.devices
+      }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true)
+      }
+    }
+  )
+)

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Lock, Mail, Shield, Sparkles, Key, Smartphone, Laptop, CheckCircle2 } from 'lucide-react'
 import { useAuthStore, ALL_ROLES } from '@/store/useAuthStore'
 import { Button } from '@/components/ui/Button'
@@ -8,6 +9,7 @@ import { Badge } from '@/components/ui/Badge'
 
 export const LoginView = () => {
   const { login } = useAuthStore()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('admin@fillfree.com')
   const [password, setPassword] = useState('••••••••••••')
   const [selectedRole, setSelectedRole] = useState('Super_admin')
@@ -15,6 +17,7 @@ export const LoginView = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     login(email, password, selectedRole)
+    navigate('/dashboard')
   }
 
   return (
