@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Laptop, LogOut, User, ChevronDown, Bell, Search, Sun, Moon, Shield } from 'lucide-react'
+import { Laptop, LogOut, User, ChevronDown, Bell, Search, Sun, Moon, Shield, Menu, Box } from 'lucide-react'
 import { useAuthStore, ALL_ROLES } from '@/store/useAuthStore'
 import { useThemeStore } from '@/store/useThemeStore'
 import { useNotificationStore } from '@/store/useNotificationStore'
 import { Badge } from '@/components/ui/Badge'
 
-export const Navbar = () => {
+export const Navbar = ({ onMenuClick }) => {
   const { currentUser, logout, devices } = useAuthStore()
   const { theme, toggleTheme } = useThemeStore()
   const { getUnreadCount } = useNotificationStore()
@@ -19,8 +19,25 @@ export const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 px-4 sm:px-6 backdrop-blur-md transition-colors">
-      {/* Search & Breadcrumb */}
-      <div className="flex items-center gap-4">
+      {/* Left: Mobile Hamburger Toggle + Search & Breadcrumb */}
+      <div className="flex items-center gap-3">
+        {/* Mobile Hamburger Drawer Trigger */}
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="Open Navigation Menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        {/* Mobile Brand Name (visible only on mobile where docked sidebar is hidden) */}
+        <div className="flex lg:hidden items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-500 shadow-sm text-white">
+            <Box className="h-4 w-4" />
+          </div>
+          <span className="font-bold text-sm tracking-wider text-slate-900 dark:text-white">FILLFREE</span>
+        </div>
+
         <div className="relative hidden md:block w-72">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <input
@@ -118,7 +135,7 @@ export const Navbar = () => {
               <button
                 onClick={() => {
                   logout()
-                  navigate('/login')
+                  navigate('/')
                   setIsUserMenuOpen(false)
                 }}
                 className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs text-rose-500 dark:text-rose-400 hover:bg-rose-500/10"

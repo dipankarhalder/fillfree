@@ -17,7 +17,8 @@ import {
   TrendingUp,
   PackageCheck,
   Package,
-  XCircle
+  XCircle,
+  FileSpreadsheet
 } from 'lucide-react'
 import { useStockStore } from '@/store/useStockStore'
 import { useDataStore } from '@/store/useDataStore'
@@ -29,6 +30,7 @@ import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { exportToExcel } from '@/lib/exportUtils'
 
 export const StockLossView = () => {
   const { lossRecords, tagStockDamageOrExpiry, updateLossRecord, deleteLossRecord, getLossAnalytics } = useStockStore()
@@ -122,6 +124,23 @@ export const StockLossView = () => {
     return r.type === filterType
   })
 
+  const handleExportExcel = () => {
+    const dataToExport = filteredRecords.map((r, idx) => ({
+      'SL No': idx + 1,
+      'Incident ID': r.id,
+      'Product Name': r.productName,
+      'SKU': r.sku,
+      'Loss Type': r.type,
+      'Damaged/Expired Qty': r.quantity,
+      'Financial Loss (₹)': r.totalCost,
+      'Warehouse': r.warehouseName,
+      'Reported Date': formatDate(r.reportedDate),
+      'Reported By': r.reportedBy,
+      'Damage/Loss Reason': r.reason
+    }))
+    exportToExcel(dataToExport, 'fillfree_stock_loss_audit_report', 'Stock Loss & Damage')
+  }
+
   return (
     <div className="space-y-6">
       {/* Top Header */}
@@ -136,10 +155,22 @@ export const StockLossView = () => {
           </p>
         </div>
 
-        <Button onClick={handleOpenAdd} variant="destructive">
-          <Plus className="h-4 w-4 mr-1.5" />
-          Tag Damaged or Expired Stock
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleExportExcel}
+            variant="outline"
+            className="gap-1.5 text-xs h-9 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+            title="Download Loss Audit in Excel Format (.xlsx)"
+          >
+            <FileSpreadsheet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Download Excel</span>
+          </Button>
+
+          <Button onClick={handleOpenAdd} variant="destructive" className="text-xs h-9">
+            <Plus className="h-4 w-4 mr-1.5" />
+            Tag Damaged or Expired Stock
+          </Button>
+        </div>
       </div>
 
       {/* Dynamic Live Inventory Stock Reconciliation Metrics */}

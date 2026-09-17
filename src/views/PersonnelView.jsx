@@ -9,10 +9,10 @@ import {
   Mail,
   Plus,
   Shield,
-  CreditCard,
   Briefcase,
   Edit,
-  Trash2
+  Trash2,
+  FileSpreadsheet
 } from 'lucide-react'
 import { useDataStore } from '@/store/useDataStore'
 import { useWarehouseStore } from '@/store/useWarehouseStore'
@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import { formatCurrency } from '@/lib/utils'
+import { exportToExcel } from '@/lib/exportUtils'
 
 export const PersonnelView = () => {
   const { personnel, addPersonnel, updatePersonnel, deletePersonnel } = useDataStore()
@@ -126,6 +127,25 @@ export const PersonnelView = () => {
     }
   }
 
+  const handleExportExcel = () => {
+    const dataToExport = filteredPersonnel.map((p, idx) => ({
+      'SL No': idx + 1,
+      'Employee ID': p.id,
+      'Full Name': p.name,
+      'Internal Role': p.role === 'Admin' ? 'Admin' : 'Member Staff',
+      'Assigned Warehouse': p.assignedWarehouseName,
+      'Email Address': p.email,
+      'Phone Number': p.phone,
+      'Base Salary (₹)': p.salaryDetails?.baseSalary || 65000,
+      'Allowances (₹)': p.salaryDetails?.allowances || 12000,
+      'PF Deduction (₹)': p.salaryDetails?.pfDeduction || 3900,
+      'Net Salary (₹)': p.salaryDetails?.netSalary || 73100,
+      'Pay Frequency': p.salaryDetails?.payFrequency || 'Monthly',
+      'Bank Account': p.salaryDetails?.bankAccount || 'HDFC Bank - 502000182'
+    }))
+    exportToExcel(dataToExport, 'fillfree_personnel_payroll_roster', 'Staff & Payroll')
+  }
+
   return (
     <div className="space-y-6">
       {/* Top Header */}
@@ -140,10 +160,22 @@ export const PersonnelView = () => {
           </p>
         </div>
 
-        <Button onClick={handleOpenAdd} variant="default">
-          <Plus className="h-4 w-4 mr-1.5" />
-          Add Personnel Record
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleExportExcel}
+            variant="outline"
+            className="gap-1.5 text-xs h-9 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+            title="Download Personnel Roster in Excel Format (.xlsx)"
+          >
+            <FileSpreadsheet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Download Excel</span>
+          </Button>
+
+          <Button onClick={handleOpenAdd} variant="default" className="text-xs h-9">
+            <Plus className="h-4 w-4 mr-1.5" />
+            Add Personnel Record
+          </Button>
+        </div>
       </div>
 
       {/* Role Filter Tabs */}
