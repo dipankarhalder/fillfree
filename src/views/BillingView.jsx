@@ -19,7 +19,8 @@ import {
   ArrowRight,
   Eye,
   Download,
-  FileText
+  FileText,
+  Route
 } from 'lucide-react'
 import { useBillingStore } from '@/store/useBillingStore'
 import { useDataStore } from '@/store/useDataStore'
@@ -448,6 +449,16 @@ export const BillingView = () => {
                           >
                             <Download className="h-3.5 w-3.5" />
                           </Button>
+                          {/* Track Downstream Resale */}
+                          <Link to="/resale" title="Track Dealer Resale">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400"
+                            >
+                              <Route className="h-3.5 w-3.5" />
+                            </Button>
+                          </Link>
                           <Button
                             variant="ghost"
                             size="sm"

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Users,
   MapPin,
@@ -13,9 +14,15 @@ import {
   DollarSign,
   Edit,
   Trash2,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Route,
+  TrendingUp,
+  ShoppingBag,
+  Store,
+  ArrowRight
 } from 'lucide-react'
 import { useDataStore } from '@/store/useDataStore'
+import { useResaleStore } from '@/store/useResaleStore'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -26,6 +33,7 @@ import { exportToExcel } from '@/lib/exportUtils'
 
 export const PartnersView = () => {
   const { partners, addPartner, updatePartner, deletePartner } = useDataStore()
+  const { resales } = useResaleStore()
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('All')
   const [selectedPartner, setSelectedPartner] = useState(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -337,6 +345,53 @@ export const PartnersView = () => {
                 </div>
               </div>
             </div>
+
+            {/* Downstream Resale & Market Reach (for Dealers and Wholesalers) */}
+            {selectedPartner.role !== 'Suppliers' && (
+              <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-4 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                    <Route className="h-4 w-4" /> Downstream Resale & Market Reach
+                  </h4>
+                  <Link to="/resale">
+                    <Button size="sm" variant="outline" className="h-7 text-[11px] gap-1 text-indigo-600 dark:text-indigo-400 border-indigo-500/30">
+                      <span>Open Resale Console</span>
+                      <ArrowRight className="h-3 w-3" />
+                    </Button>
+                  </Link>
+                </div>
+
+                {(() => {
+                  const partnerResales = resales.filter(r => r.resellerId === selectedPartner.id)
+                  const totalPartnerResale = partnerResales.reduce((acc, r) => acc + (r.totalResaleAmount || 0), 0)
+                  const totalUnitsResold = partnerResales.reduce((acc, r) => acc + (r.quantity || 0), 0)
+                  const cities = [...new Set(partnerResales.map(r => r.city))]
+
+                  return (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-1">
+                      <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                        <span className="text-[10px] text-slate-400 block font-semibold uppercase">Resales Logged</span>
+                        <span className="text-base font-bold text-slate-900 dark:text-white">{partnerResales.length} Consignments</span>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                        <span className="text-[10px] text-slate-400 block font-semibold uppercase">Resold Volume</span>
+                        <span className="text-base font-bold text-indigo-600 dark:text-indigo-400 font-mono">{formatCurrency(totalPartnerResale)}</span>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                        <span className="text-[10px] text-slate-400 block font-semibold uppercase">Units Deployed</span>
+                        <span className="text-base font-bold text-slate-900 dark:text-white">{totalUnitsResold} Units</span>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                        <span className="text-[10px] text-slate-400 block font-semibold uppercase">Target Cities</span>
+                        <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 truncate block mt-1" title={cities.join(', ')}>
+                          {cities.length > 0 ? cities.join(', ') : 'No resales logged yet'}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })()}
+              </div>
+            )}
 
             <div className="pt-2 flex justify-end">
               <Button onClick={() => setIsDetailModalOpen(false)} variant="outline">

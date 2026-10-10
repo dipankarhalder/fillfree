@@ -14,6 +14,8 @@ import { PersonnelView } from '@/views/PersonnelView'
 import { CommissionsView } from '@/views/CommissionsView'
 import { BillingView } from '@/views/BillingView'
 import { ProcurementView } from '@/views/ProcurementView'
+import { ResaleTrackingView } from '@/views/ResaleTrackingView'
+import { RechargeTrackingView } from '@/views/RechargeTrackingView'
 import { MastersView } from '@/views/MastersView'
 import { CouponsView } from '@/views/CouponsView'
 import { ProfileView } from '@/views/ProfileView'
@@ -111,6 +113,8 @@ export function App() {
         <Route path="/analytics" element={<AnalyticsView />} />
         <Route path="/procurement" element={<ProcurementView />} />
         <Route path="/billing" element={<BillingView />} />
+        <Route path="/resale" element={<ResaleTrackingView />} />
+        <Route path="/recharges" element={<RechargeTrackingView />} />
         <Route path="/masters" element={<MastersView />} />
         <Route path="/categories" element={<CategoriesView />} />
         <Route path="/products" element={<ProductsView />} />
