@@ -19,7 +19,9 @@ import {
   Settings2,
   X,
   ShieldAlert,
-  BarChart3
+  BarChart3,
+  Route,
+  Smartphone
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/useAuthStore'
@@ -45,8 +47,10 @@ export const NAVIGATION_CATEGORIES = [
     items: [
       { path: '/procurement', label: 'Lot Procurement', icon: Truck },
       { path: '/billing', label: 'Sales Billing', icon: Receipt },
+      { path: '/resale', label: 'Resale Tracking', icon: Route },
       { path: '/commissions', label: 'Commission Matrix', icon: Coins },
-      { path: '/coupons', label: 'Discount Coupons', icon: Ticket }
+      { path: '/coupons', label: 'Discount Coupons', icon: Ticket },
+      { path: '/recharges', label: 'Mobile Recharges', icon: Smartphone }
     ]
   },
   {
@@ -58,7 +62,6 @@ export const NAVIGATION_CATEGORIES = [
   },
   {
     category: 'Master Configuration',
-    badge: 'Super Admin',
     items: [
       { path: '/masters', label: 'Master Console', icon: Settings2, superAdminBadge: true },
       { path: '/categories', label: 'Taxonomy & Subcat', icon: FolderTree }
